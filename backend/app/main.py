@@ -14,7 +14,9 @@ from app.similarity import (
 )
 from app.file_manager import save_unique_file
 from app.dataset_manager import update_dataset
-from app.config import RESUME_DIR, JD_DIR
+from app.config import RESUME_DIR, JD_DIR, DATASET_PATH
+import os
+import pandas as pd
 
 # Logging setup
 logging.basicConfig(filename="logs.txt", level=logging.INFO)
@@ -93,14 +95,14 @@ async def process_resume_jd(
 
     # Prepare dataset row
     new_row = {
-        "resume": resume_filename,
-        "job_description": jd_filename,
-        "tfidf_similarity": float(np.round(tfidf_score, 2)),
-        "bert_similarity": float(np.round(bert_score, 2)),
-        "num_matched_skills": len(matched_skills),
-        "num_missing_skills": len(missing_skills),
-        "category": category,
-        "score": score,
+        "Resume": resume_filename,
+        "Job_Description": jd_filename,
+        "Tfidf_Similarity": float(np.round(tfidf_score, 2)),
+        "Bert_Similarity": float(np.round(bert_score, 2)),
+        "No_of_Matched_Skills": len(matched_skills),
+        "No_of_Missing_Skills": len(missing_skills),
+        "Category": category,
+        "Score": score,
     }
 
     # Update dataset CSV
@@ -140,3 +142,12 @@ async def process_resume_jd(
             "jd_text": jd_text,
         },
     }
+
+
+@app.get("/dataset")
+def get_dataset():
+    """Fetch the complete dataset"""
+    if os.path.exists(DATASET_PATH) and os.path.getsize(DATASET_PATH) > 0:
+        df = pd.read_csv(DATASET_PATH)
+        return {"data": df.to_dict(orient="records")}
+    return {"data": []}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import api from "../lib/api";
 
 type UploadFormProps = {
@@ -22,6 +22,8 @@ const UploadForm: React.FC<UploadFormProps> = ({
   const [score, setScore] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
+
+  const resultRef = useRef<HTMLDivElement | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -49,6 +51,10 @@ const UploadForm: React.FC<UploadFormProps> = ({
       // Save result & refresh parent
       setResult(res.data.data);
       onUpload();
+      setTimeout(() => {
+        resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 200);
+
     } catch (error) {
       console.error(error);
       alert("Something went wrong!");
@@ -61,14 +67,14 @@ const UploadForm: React.FC<UploadFormProps> = ({
     <div className="w-full h-fit mx-auto bg-black text-gray-300 rounded-md shadow-md md:px-14 px-9 py-10 border border-gray-600">
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col md:gap-8 gap-12"
+        className="flex flex-col md:gap-7 gap-12"
       >
-        <h1 className="text-center md:text-3xl text-2xl md:mb-6 mb-2">
+        <h1 className="text-center md:text-3xl text-2xl md:mb-5 mb-2">
           Dataset Row Insertion
         </h1>
 
         {/* Resume Upload */}
-        <div className="flex flex-col justify-between gap-2.5">
+        <div className="flex flex-col justify-between gap-2">
           <label htmlFor="resume" className="">
             Upload Resume:
           </label>
@@ -77,12 +83,12 @@ const UploadForm: React.FC<UploadFormProps> = ({
             type="file"
             accept=".pdf,.doc,.docx"
             onChange={(e) => setResume(e.target.files?.[0] || null)}
-            className="bg-[#1e1e1f] p-3 border border-gray-800 rounded text-gray-300 text-sm"
+            className="bg-[#1e1e1f] p-2.5 border border-gray-800 rounded text-gray-300 text-sm"
           />
         </div>
 
         {/* JD Upload */}
-        <div className="flex flex-col justify-between gap-2.5">
+        <div className="flex flex-col justify-between gap-2">
           <label htmlFor="jd" className="">
             Upload Job Description:
           </label>
@@ -91,7 +97,7 @@ const UploadForm: React.FC<UploadFormProps> = ({
             type="file"
             accept=".pdf,.doc,.docx"
             onChange={(e) => setJd(e.target.files?.[0] || null)}
-            className="bg-[#1e1e1f] p-3 border border-gray-800 rounded text-gray-300 text-sm"
+            className="bg-[#1e1e1f] p-2.5 border border-gray-800 rounded text-gray-300 text-sm"
           />
         </div>
 
@@ -104,13 +110,13 @@ const UploadForm: React.FC<UploadFormProps> = ({
             }
             onPreviewClick();
           }}
-          className="p-2 rounded bg-red-500 text-white hover:bg-red-600 transition"
+          className="p-2 rounded bg-[#e5e5e5] text-black hover:bg-gray-300 transition"
         >
           Preview Files
         </button>
 
         {/* Category Selector */}
-        <div className="flex flex-col justify-between gap-2.5">
+        <div className="flex flex-col justify-between gap-2">
           <label htmlFor="category" className="">
             Choose your evaluation category:
           </label>
@@ -118,7 +124,7 @@ const UploadForm: React.FC<UploadFormProps> = ({
             id="category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="bg-[#1e1e1f] p-3 border border-gray-800 rounded text-gray-300 text-sm"
+            className="bg-[#1e1e1f] p-2.5 border border-gray-800 rounded text-gray-300 text-sm"
           >
             <option value="">-- Select --</option>
             <option value="poor">Poor match</option>
@@ -130,7 +136,7 @@ const UploadForm: React.FC<UploadFormProps> = ({
         </div>
 
         {/* Score Input */}
-        <div className="flex flex-col justify-between gap-2.5">
+        <div className="flex flex-col justify-between gap-2">
           <label htmlFor="score" className="">
             Enter Score (out of 100):
           </label>
@@ -139,8 +145,20 @@ const UploadForm: React.FC<UploadFormProps> = ({
             type="number"
             placeholder="Score"
             value={score}
-            onChange={(e) => setScore(e.target.value)}
-            className="bg-[#1e1e1f] p-3 border border-gray-800 rounded text-sm"
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === "") {
+                setScore(val);
+                return;
+              }
+
+              // Allow only numbers between 0 and 100
+              const num = Number(val);
+              if (num >= 0 && num <= 100) {
+                setScore(val);
+              }
+            }}
+            className="bg-[#1e1e1f] p-2.5 border border-gray-800 rounded text-sm"
           />
         </div>
 
@@ -149,38 +167,69 @@ const UploadForm: React.FC<UploadFormProps> = ({
           type="submit"
           disabled={loading}
           className={`p-2 rounded text-gray-800 transition ${loading
-              ? "bg-gray-500 cursor-not-allowed"
-              : "bg-[#e5e5e5] text-black hover:bg-gray-300"
+            ? "bg-gray-500 cursor-not-allowed"
+            : "bg-red-500 text-white hover:bg-red-700"
             }`}
         >
-          {loading ? "Processing..." : "Upload & Process"}
+          {loading ? "Processing..." : "Submit"}
         </button>
       </form>
 
-      {/* Display Results */}
+      {/* Display Results in Table */}
       {result && (
-        <div className="mt-6 p-4 border rounded bg-[#e5e5e5] text-gray-800 shadow">
-          <h2 className="text-xl font-bold mb-2">Results:</h2>
-          <p>
-            <strong>TF-IDF Score:</strong> {result.tfidf_similarity}
-          </p>
-          <p>
-            <strong>BERT Score:</strong> {result.bert_similarity}
-          </p>
-          <p>
-            <strong>Matched Skills:</strong>{" "}
-            {result.matched_skills?.length > 0
-              ? result.matched_skills.map((s: any) => `${s.skill} (as "${s.matched_as}")`).join(",")
-              : "None"}
-          </p>
-          <p>
-            <strong>Missing Skills:</strong>{" "}
-            {result.missing_skills?.length > 0
-              ? result.missing_skills.map((s: any) => `${s.skill} (expected as '${s.expected_as}')`).join(", ")
-              : "None"}
-          </p>
+        <div ref={resultRef} className="mt-10 p-4 border border-gray-600 rounded bg-[#1e1e1f] text-gray-200">
+          <h2 className="text-xl  mb-4 text-center">Inserted Row</h2>
+
+          <div className="overflow-x-auto mt-6">
+            <table className="w-full border-collapse border border-gray-700 rounded-lg shadow font-sans">
+              <thead>
+                <tr className="bg-gray-800 text-gray-200">
+                  <th className="border border-gray-700 p-3 font-semibold">Resume</th>
+                  <th className="border border-gray-700 p-3 font-semibold">Job Description</th>
+                  <th className="border border-gray-700 p-3 font-semibold">TF-IDF Similarity</th>
+                  <th className="border border-gray-700 p-3 font-semibold">BERT Similarity</th>
+                  <th className="border border-gray-700 p-3 font-semibold">No of Matched Skills</th>
+                  <th className="border border-gray-700 p-3 font-semibold">No of Missing Skills</th>
+                  <th className="border border-gray-700 p-3 font-semibold">Category</th>
+                  <th className="border border-gray-700 p-3 font-semibold">Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="bg-gray-900 text-gray-200">
+                  <td className="border border-gray-700 p-3">{result.Resume}</td>
+                  <td className="border border-gray-700 p-3">{result.Job_Description}</td>
+                  <td className="border border-gray-700 p-3">{result.Tfidf_Similarity}</td>
+                  <td className="border border-gray-700 p-3">{result.Bert_Similarity}</td>
+                  {/* <td className="border border-gray-700 p-3">
+                    
+                  </td>
+                  <td className="border border-gray-700 p-3">
+                    
+                  </td> */}
+                  <td className="border border-gray-700 p-3">{result.No_of_Matched_Skills}</td>
+                  <td className="border border-gray-700 p-3">{result.No_of_Missing_Skills}</td>
+                  <td className="border border-gray-700 p-3 capitalize">{result.Category}</td>
+                  <td className="border border-gray-700 p-3">{result.Score}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-10 space-y-1">
+            <p>
+              <span className="font-semibold">Matched skills:</span> {result.matched_skills?.length > 0
+                ? result.matched_skills.map((s: any) => s.skill).join(", ")
+                : "None"}
+            </p>
+            <p>
+              <span className="font-semibold">Missing skills:</span> {result.missing_skills?.length > 0
+                ? result.missing_skills.map((s: any) => s.skill).join(", ")
+                : "None"}
+            </p>
+          </div>
+
         </div>
       )}
+
     </div>
   );
 };

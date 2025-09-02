@@ -4,4 +4,4 @@ Dataset Builder is a tool created to support the Resume Score project by making 
 
 <br/>
 
-![App Screenshot](frontend/public/home_screen.png)
+![App Screenshot](frontend/public/app_screenshot.png)

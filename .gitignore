@@ -1,6 +1,7 @@
 # === Frontend (React) ===
 frontend/node_modules
 frontend/build
+frontend/dist
 frontend/.env
 
 # === Backend (FastAPI / Python) ===
@@ -8,6 +9,7 @@ backend/venv/
 backend/app/__pycache__/
 backend/zcompare.py
 backend/.env
+backend/dist
 
 # === Python general ===
 *.pyc

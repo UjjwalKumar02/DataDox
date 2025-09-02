@@ -1,0 +1,5 @@
+Resume,Job_Description,Tfidf_Similarity,Bert_Similarity,No_of_Matched_Skills,No_of_Missing_Skills,Category,Score
+resume_1.pdf,jd_1.pdf,0.27,0.3000000119209289,8,0,average,60.0
+resume_2.pdf,jd_1.pdf,0.42,0.2899999916553497,1,7,solid,22.0
+resume_5.pdf,jd_2.docx,0.3,0.5699999928474426,7,1,solid,22.0
+resume_6.pdf,jd_1.pdf,0.15,0.4099999964237213,3,5,poor,9.0

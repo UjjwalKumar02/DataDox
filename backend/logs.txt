@@ -1,0 +1,14 @@
+INFO:root:Received request -> Resume: Ujjwal Kumar_2025RES-3 (2).pdf, JD: Full Stack Engineer.pdf, Category: average, Score: 60.0
+[2025-09-02 12:03:10] Dataset updated -> resume_1.pdf | jd_1.pdf
+INFO:root:Received request -> Resume: Ujjwal Kumar_2025RES-3 (2).pdf, JD: Full Stack Engineer.pdf, Category: average, Score: 60.0
+[2025-09-02 12:03:33] Duplicate skipped -> resume_1.pdf | jd_1.pdf
+INFO:root:Received request -> Resume: Resume.pdf (1).pdf, JD: Full Stack Engineer.pdf, Category: solid, Score: 22.0
+[2025-09-02 12:56:55] Dataset updated -> resume_2.pdf | jd_1.pdf
+INFO:root:Received request -> Resume: resume-template.pdf, JD: Full Stack Engineer.docx, Category: solid, Score: 22.0
+[2025-09-02 12:57:16] Dataset updated -> resume_5.pdf | jd_2.docx
+INFO:root:Received request -> Resume: Bully-res.pdf, JD: Full Stack Engineer.pdf, Category: poor, Score: 9.0
+[2025-09-02 13:11:32] Dataset updated -> resume_6.pdf | jd_1.pdf
+INFO:root:Received request -> Resume: Resume.pdf (1).pdf, JD: Full Stack Engineer.pdf, Category: average, Score: 50.0
+[2025-09-02 13:15:48] Duplicate skipped -> resume_2.pdf | jd_1.pdf
+INFO:root:Received request -> Resume: Resume.pdf (1).pdf, JD: Full Stack Engineer.pdf, Category: average, Score: 50.0
+[2025-09-02 13:16:33] Duplicate skipped -> resume_2.pdf | jd_1.pdf
