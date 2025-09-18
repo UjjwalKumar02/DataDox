@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import api from "../lib/api";
 
+
 type UploadFormProps = {
   onUpload: () => void;
   resume: File | null;
@@ -9,6 +10,7 @@ type UploadFormProps = {
   setJd: (file: File | null) => void;
   onPreviewClick: () => void;
 };
+
 
 const UploadForm: React.FC<UploadFormProps> = ({
   onUpload,
@@ -22,33 +24,33 @@ const UploadForm: React.FC<UploadFormProps> = ({
   const [score, setScore] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [jdText, setJdText] = useState("");
 
   const resultRef = useRef<HTMLDivElement | null>(null);
 
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    if (!resume || !jd || !category || !score) {
+    if (!resume || (!jd && !jdText.trim()) || !category || !score) {
       alert("All fields are required!");
       return;
     }
-
     try {
       setLoading(true);
-
-      // Prepare form data
       const formData = new FormData();
       formData.append("resume", resume);
-      formData.append("jd_file", jd); // CHANGED: Must match FastAPI param name
       formData.append("category", category);
       formData.append("score", score);
+      if (jd) {
+        formData.append("jd_file", jd);
+      } else {
+        formData.append("jd_text_input", jdText);
+      }
 
-      // Use the new unified endpoint
       const res = await api.post("/process", formData, {
-        headers: { "Content-Type": "multipart/form-data" }, // ✅ Fixed typo
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
-      // Save result & refresh parent
       setResult(res.data.data);
       onUpload();
       setTimeout(() => {
@@ -96,16 +98,32 @@ const UploadForm: React.FC<UploadFormProps> = ({
             id="jd"
             type="file"
             accept=".pdf,.doc,.docx"
+            disabled={jdText.trim().length > 0}
             onChange={(e) => setJd(e.target.files?.[0] || null)}
-            className="bg-[#1e1e1f] p-2.5 border border-gray-800 rounded text-gray-300 text-sm"
+            className="bg-[#1e1e1f] p-2.5 border border-gray-800 rounded text-gray-300 text-sm disabled:opacity-50"
+          />
+        </div>
+
+        <div className="flex flex-col justify-between gap-2">
+          <label htmlFor="jdText" className="">
+            Enter Job Description:
+          </label>
+          <textarea
+            id="jdText"
+            rows={5}
+            value={jdText}
+            onChange={(e) => setJdText(e.target.value)}
+            disabled={jd !== null}
+            placeholder="Enter job description text here..."
+            className="bg-[#1e1e1f] p-2.5 border border-gray-800 rounded text-sm text-gray-300 disabled:opacity-50"
           />
         </div>
 
         <button
           type="button"
           onClick={() => {
-            if (!resume || !jd) {
-              alert("Please upload both resume and JD to preview.");
+            if (!resume || (!jd && !jdText.trim())) {
+              alert("Please upload resume and either JD file or JD text to preview.");
               return;
             }
             onPreviewClick();
@@ -151,7 +169,6 @@ const UploadForm: React.FC<UploadFormProps> = ({
                 setScore(val);
                 return;
               }
-
               // Allow only numbers between 0 and 100
               const num = Number(val);
               if (num >= 0 && num <= 100) {
@@ -187,7 +204,8 @@ const UploadForm: React.FC<UploadFormProps> = ({
                   <th className="border border-gray-700 p-3 font-semibold">Resume</th>
                   <th className="border border-gray-700 p-3 font-semibold">Job Description</th>
                   <th className="border border-gray-700 p-3 font-semibold">TF-IDF Similarity</th>
-                  <th className="border border-gray-700 p-3 font-semibold">BERT Similarity</th>
+                  <th className="border border-gray-700 p-3 font-semibold">Jaccard Similarity</th>
+                  <th className="border border-gray-700 p-3 font-semibold">Length Ratio</th>
                   <th className="border border-gray-700 p-3 font-semibold">No of Matched Skills</th>
                   <th className="border border-gray-700 p-3 font-semibold">No of Missing Skills</th>
                   <th className="border border-gray-700 p-3 font-semibold">Category</th>
@@ -199,13 +217,8 @@ const UploadForm: React.FC<UploadFormProps> = ({
                   <td className="border border-gray-700 p-3">{result.Resume}</td>
                   <td className="border border-gray-700 p-3">{result.Job_Description}</td>
                   <td className="border border-gray-700 p-3">{result.Tfidf_Similarity}</td>
-                  <td className="border border-gray-700 p-3">{result.Bert_Similarity}</td>
-                  {/* <td className="border border-gray-700 p-3">
-                    
-                  </td>
-                  <td className="border border-gray-700 p-3">
-                    
-                  </td> */}
+                  <td className="border border-gray-700 p-3">{result.Jaccard_Similarity}</td>
+                  <td className="border border-gray-700 p-3">{result.Length_Ratio}</td>
                   <td className="border border-gray-700 p-3">{result.No_of_Matched_Skills}</td>
                   <td className="border border-gray-700 p-3">{result.No_of_Missing_Skills}</td>
                   <td className="border border-gray-700 p-3 capitalize">{result.Category}</td>

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-// import { X } from "lucide-react";
+import api from "../lib/api";
+
 
 interface DatasetViewProps {
   onClose: () => void;
 }
+
 
 export default function DatasetView({ onClose }: DatasetViewProps) {
   const [data, setData] = useState<any[]>([]);
@@ -13,7 +14,7 @@ export default function DatasetView({ onClose }: DatasetViewProps) {
   useEffect(() => {
     const fetchDataset = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/dataset"); // Adjust URL if needed
+        const res = await api.get("/dataset");
         setData(res.data.data);
       } catch (error) {
         console.error("Error fetching dataset:", error);
@@ -25,21 +26,20 @@ export default function DatasetView({ onClose }: DatasetViewProps) {
     fetchDataset();
   }, []);
 
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex flex-col z-50">
-      {/* Top Bar */}
+
       <div className="flex justify-between items-center p-4 bg-gray-900 border-b border-gray-700">
         <h2 className="text-xl text-white">Dataset Viewer</h2>
         <button
           onClick={onClose}
           className="p-2 text-white hover:text-red-400 transition"
         >
-          {/* <X size={24} className="text-white" /> */}
           Close
         </button>
       </div>
 
-      {/* Content */}
       <div className="flex-1 overflow-auto p-6">
         {loading ? (
           <p className="text-gray-300 text-center">Loading dataset...</p>
@@ -63,7 +63,7 @@ export default function DatasetView({ onClose }: DatasetViewProps) {
               <tbody>
                 {data.map((row, i) => (
                   <tr key={i} className="hover:bg-gray-700">
-                    {Object.values(row).map((val : any, j) => (
+                    {Object.values(row).map((val: any, j) => (
                       <td
                         key={j}
                         className="border border-gray-700 p-3 text-gray-300"

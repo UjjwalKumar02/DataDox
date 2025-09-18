@@ -1,6 +1,4 @@
 import os
-from sentence_transformers import SentenceTransformer
-import spacy
 
 
 # Paths
@@ -13,7 +11,6 @@ LOG_FILE = "logs.txt"
 # Create necessary directories
 os.makedirs(RESUME_DIR, exist_ok=True)
 os.makedirs(JD_DIR, exist_ok=True)
-
-# Models
-nlp = spacy.load("en_core_web_sm")
-bert_model = SentenceTransformer("all-MiniLM-L6-v2")
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+os.makedirs(RESUME_DIR, exist_ok=True)
+os.makedirs(JD_DIR, exist_ok=True)

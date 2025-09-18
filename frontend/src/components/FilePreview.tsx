@@ -1,10 +1,12 @@
 import type React from "react";
 import { useEffect, useState } from "react";
 
+
 type FilePreviewProps = {
   file: File | null;
   label?: string;
 };
+
 
 const FilePreview: React.FC<FilePreviewProps> = ({ file, label }) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -26,6 +28,8 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, label }) => {
 
   const isPDF = file.type === "application/pdf";
   const isDoc = file.name.endsWith(".doc") || file.name.endsWith(".docx");
+
+
   return (
     <div className="mt-3">
       {label && <p className="text-sm text-gray-200">{label}</p>}

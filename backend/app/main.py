@@ -1,22 +1,22 @@
 import io
-import numpy as np
+import os
 import logging
+import numpy as np
+import pandas as pd
+from typing import Optional
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from app.extraction import (
-    extract_text_from_pdf,
-    extract_text_from_docx,
-)
+from app.extraction import extract_text_from_pdf, extract_text_from_docx
 from app.extraction import extract_skills
 from app.similarity import (
     calculate_tfidf_similarity,
-    calculate_bert_similarity,
+    calculate_jaccard_similarity,
+    calculate_length_ratio,
 )
-from app.file_manager import save_unique_file
+from app.file_manager import save_unique_file, save_text_as_unique_file
 from app.dataset_manager import update_dataset
 from app.config import RESUME_DIR, JD_DIR, DATASET_PATH
-import os
-import pandas as pd
+
 
 # Logging setup
 logging.basicConfig(filename="logs.txt", level=logging.INFO)
@@ -25,7 +25,7 @@ app = FastAPI(title="Resume-JD Matcher", version="2.1")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # React Vite default port
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -35,23 +35,14 @@ app.add_middleware(
 @app.post("/process")
 async def process_resume_jd(
     resume: UploadFile = File(...),
-    jd_file: UploadFile = File(...),
+    jd_file: Optional[UploadFile] = File(None),
+    jd_text_input: Optional[str] = Form(None),
     category: str = Form(...),
     score: float = Form(...),
 ):
-    """
-    Endpoint to:
-    1. Upload Resume & JD
-    2. Extract Text + Skills
-    3. Compute TF-IDF + BERT Similarity
-    4. Detect Matched & Missing Skills
-    5. Update Dataset
-    """
 
-    logging.info(
-        f"Received request -> Resume: {resume.filename}, JD: {jd_file.filename}, "
-        f"Category: {category}, Score: {score}"
-    )
+    if not jd_file and not jd_text_input:
+        return {"error": "Either JD file or JD text must be provided."}
 
     # Read & save Resume
     resume_bytes = await resume.read()
@@ -65,21 +56,28 @@ async def process_resume_jd(
         resume_text = extract_text_from_docx(io.BytesIO(resume_bytes))
 
     # Read & save JD
-    jd_bytes = await jd_file.read()
-    jd_filename = save_unique_file(jd_bytes, jd_file.filename, JD_DIR, "jd")
-
-    jd_text = (
-        extract_text_from_pdf(jd_bytes)
-        if jd_file.filename.lower().endswith(".pdf")
-        else extract_text_from_docx(io.BytesIO(jd_bytes))
-    )
+    if jd_file:
+        jd_bytes = await jd_file.read()
+        jd_filename = save_unique_file(jd_bytes, jd_file.filename, JD_DIR, "jd")
+        jd_text = (
+            extract_text_from_pdf(jd_bytes)
+            if jd_file.filename.lower().endswith(".pdf")
+            else extract_text_from_docx(io.BytesIO(jd_bytes))
+        )
+    elif jd_text_input:
+        jd_filename = save_text_as_unique_file(
+            jd_text_input, JD_DIR, "jd"
+        )  # Save as .txt
+        jd_text = jd_text_input
+    else:
+        return {"error": "No JD input provided."}
 
     # Similarity calculations
     tfidf_score = calculate_tfidf_similarity(resume_text, jd_text)
-    bert_score = calculate_bert_similarity(resume_text, jd_text)
+    jaccard_score = calculate_jaccard_similarity(resume_text, jd_text)
+    length_ratio = calculate_length_ratio(resume_text, jd_text)
 
     # Extract skills
-
     resume_skills_dict = extract_skills(resume_text)
     jd_skills_dict = extract_skills(jd_text)
 
@@ -98,7 +96,8 @@ async def process_resume_jd(
         "Resume": resume_filename,
         "Job_Description": jd_filename,
         "Tfidf_Similarity": float(np.round(tfidf_score, 2)),
-        "Bert_Similarity": float(np.round(bert_score, 2)),
+        "Jaccard_Similarity": float(np.round(jaccard_score, 2)),
+        "Length_Ratio": float(length_ratio),
         "No_of_Matched_Skills": len(matched_skills),
         "No_of_Missing_Skills": len(missing_skills),
         "Category": category,
@@ -109,21 +108,6 @@ async def process_resume_jd(
     update_dataset(new_row)
 
     # Final response
-    # return {
-    #     "message": "Processed successfully",
-    #     "data": {
-    #         **new_row,
-    #         "matched_skills": matched_details.items(),
-    #         "missing_skills": missing_details.items(),
-    #         "resume_skills": resume_skills,
-    #         "jd_skills": jd_skills,
-    #         "resume_text": resume_text,
-    #         "jd_text": jd_text,
-    #     },
-    # }
-
-    # Final response
-
     return {
         "message": "Processed successfully",
         "data": {
