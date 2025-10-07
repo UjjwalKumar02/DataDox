@@ -14,7 +14,7 @@ function App() {
 
   return (
     <div
-      className="min-h-screen bg-gray-100 p-4"
+      className="min-h-screen p-4"
       style={{ fontFamily: "Poppins, sans-serif" }}
     >
       {/* Navbar */}
