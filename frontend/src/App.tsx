@@ -14,11 +14,11 @@ function App() {
 
   return (
     <div
-      className="min-h-screen p-4"
+      className="min-h-screen bg-gray-50 p-4"
       style={{ fontFamily: "Poppins, sans-serif" }}
     >
       {/* Navbar */}
-      <div className=" flex justify-between items-center py-2 mb-1 lg:px-9 px-2">
+      <div className=" flex justify-between items-center py-1.5 mb-1 lg:px-9 px-2">
         <h1 className="text-2xl font-semibold">
           DataDox
         </h1>
