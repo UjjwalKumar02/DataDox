@@ -1,7 +1,7 @@
-# Dataset Builder
+# DataDox
 
-Dataset Builder is a tool created to make it easier to build high-quality training dataset for the project [Resume score](https://github.com/UjjwalKumar02/Resume-score)
+A tool that helps in building high-quality training dataset for the project [Rescore](https://github.com/UjjwalKumar02/Rescore)
 
 <br/>
 
-![App Screenshot](frontend/public/app_screenshot.png)
+![App Screenshot](frontend/public/app_screenshot4.png)

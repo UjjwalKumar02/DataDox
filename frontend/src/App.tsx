@@ -11,25 +11,28 @@ function App() {
   const [refresh, setRefresh] = useState(false);
   const [showDataset, setShowDataset] = useState(false);
 
-  
+
   return (
     <div
-      className="min-h-screen bg-[#1e1e1f] p-4"
+      className="min-h-screen bg-gray-100 p-4"
       style={{ fontFamily: "Poppins, sans-serif" }}
     >
       {/* Navbar */}
-      <div className="flex justify-end items-center mb-3">
+      <div className=" flex justify-between items-center py-2 mb-1 lg:px-9 px-2">
+        <h1 className="text-2xl font-semibold">
+          DataDox
+        </h1>
         <button
           onClick={() => setShowDataset(true)}
-          className=" bg-red-500 text-white rounded hover:bg-red-700 px-8 py-0.5 transition"
+          className=" bg-blue-700 text-white rounded-lg hover:bg-blue-600 px-9 py-0.5 transition font-medium cursor-pointer"
         >
           View Dataset
         </button>
       </div>
 
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-12 items-start">
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-22 items-start justify-center">
         {/* Upload Form */}
-        <div className="w-full lg:w-1/2">
+        <div className="w-full lg:max-w-[34%]">
           <UploadForm
             onUpload={() => setRefresh(!refresh)}
             resume={resume}
@@ -41,16 +44,18 @@ function App() {
         </div>
 
         {/* File Preview */}
-        <div className="w-full lg:w-1/2 bg-black text-gray-300 py-10 px-7 rounded border border-gray-600 h-fit min-h-[500px]">
-          <h2 className="text-2xl mb-4">Preview Uploaded Files</h2>
+        <div className="w-full lg:w-1/2 bg-white text-gray-900 py-9 px-7 rounded-xl border border-gray-300 h-fit min-h-[500px] shadow-xl">
+          <h2 className="text-xl mb-5 font-medium">
+            Preview Files
+          </h2>
 
           {showPreview ? (
             <>
-              <FilePreview file={resume} label="Resume Preview:" />
-              <FilePreview file={jd} label="Job Description Preview:" />
+              <FilePreview file={resume} label="Resume" />
+              <FilePreview file={jd} label="Job Description" />
             </>
           ) : (
-            <div className="text-sm text-gray-300 italic">
+            <div className="text-sm text-gray-900 italic">
               File previews will appear here after you click the{" "}
               <strong>"Preview Files"</strong> button.
             </div>

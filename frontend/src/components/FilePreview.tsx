@@ -15,7 +15,6 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, label }) => {
     if (file) {
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
-
       // Cleanup on unmount or file change
       return () => URL.revokeObjectURL(url)
     }
@@ -32,22 +31,21 @@ const FilePreview: React.FC<FilePreviewProps> = ({ file, label }) => {
 
   return (
     <div className="mt-3">
-      {label && <p className="text-sm text-gray-200">{label}</p>}
-
-      <p className="text-sm text-gray-200 mb-2">
-        File: {file.name}
-      </p>
+      <span className="flex text-sm text-gray-800 mb-2">
+        <p className="font-medium">{label}</p>
+        : {file.name}
+      </span>
 
       {isPDF && previewUrl ? (
         <iframe
           src={previewUrl}
           width="100%"
           height="400px"
-          className="border border-gray-600 rounded overflow-hidden"
+          className="border border-gray-300 rounded overflow-hidden"
           title="File Preview"
         />
       ) : isDoc ? (
-        <p className="text-sm text-gray-500 italic">
+        <p className="text-sm text-gray-800 italic">
           Preview not supported for Word files. Please download to view.
         </p>
       ) : (
